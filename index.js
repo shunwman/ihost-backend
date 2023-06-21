@@ -10,16 +10,16 @@ const router = require("#routes/index.js");
 
 const app = express();
 
-// const corsOption = {
-//   origin: ["http://localhost:3000", "https://www.nfthost.app", ],
-//   optionsSuccessStatus: 200,
-// };
+//  const corsOption = {
+//    origin: ["http://localhost:3000", "https://www.nfthost.app", ],
+//    optionsSuccessStatus: 200,
+//  };
 
-// const corsHandler = contructCors(corsOption);
+//  const corsHandler = contructCors(corsOption);
 
-// app.options(cors(corsOption));
-app.use(cors())
-app.use(corsHandler);
+//  app.options(cors(corsOption));
+ app.use(cors())
+//  app.use(corsHandler);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/api", router);
