@@ -5,7 +5,7 @@ const express = require("express");
 const cors = require("cors");
 const errorHandler = require("#middlewares/errorHandler.js");
 const contructCors = require("#middlewares/corsHandler.js");
-const connection = require("#database/index.js");
+// const connection = require("#database/index.js");
 const router = require("#routes/index.js");
 
 const app = express();
