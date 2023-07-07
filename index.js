@@ -25,12 +25,12 @@ app.use(express.json());
 app.use("/api", router);
 app.use(errorHandler);
 
-connection.once("open", () => {
+// connection.once("open", () => {
   console.log("[nfthost] connected to MongoDB");
   app.listen(process.env.PORT || 8080, () => {
     console.log(`[nfthost] listening at port ${process.env.PORT || 8080}`);
   });
-});
+// });
 
 // const { generateThirdPartyToken } = require('../middlewares/jwt');
 // console.log(generateThirdPartyToken({ origin: 'https://www.nfthost.app/' }))
