@@ -25,27 +25,30 @@ exports.getFeaturedWebsites = async (req, res, next) => {
 };
 
 exports.addReferral = async (req, res, next) => {
+   
   try {
-    const errors = validationResult(req).errors;
+    const errors = validationResult(req).errors;  
     if (errors.length > 0) throw new Error(errors[0].msg);
 
     const { name, service } = req.body;
-
+   
     const nameTemp = name.trim().toLowerCase();
-
+ 
     const core = await Core.findOne({ key: "core" });
+ 
+    let newUser ;
 
-    let newUser = core.referrals.find((user) => user.name === nameTemp);
-    if (!newUser) {
+    if(!core) {
       newUser = {
         name: nameTemp,
         value: 0,
         service,
       };
+    } else {
+      newUser = core.referrals.find((user) => user.name === nameTemp)
     }
-
     newUser.value += 1;
-
+    
     let coreRes = await Core.findOneAndUpdate(
       {
         key: "core",
@@ -71,7 +74,7 @@ exports.addReferral = async (req, res, next) => {
         },
       );
     }
-
+   
     res.status(200).json({ message: "Successfully added referral" });
   } catch (err) {
     next(err);

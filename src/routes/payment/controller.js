@@ -3,10 +3,13 @@ const { Payment } = require("#models/Payments.js");
 const { Member } = require("#models/Members.js");
 const config = require("#config/index.js");
 const Stripe = require("stripe");
-
+const sdk = require('node-appwrite');
+const databases = require("#middlewares/appwrite.js")
 const stripe = new Stripe(process.env.STRIPE_SECRET);
-
+const  { generatePayment, generatePaymentFrontEnd } = require("#models/appWritePayments.js")
 exports.requestSubscription = async (req, res, next) => {
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET);
   try {
     const errors = validationResult(req).array();
     if (errors.length > 0)
@@ -24,17 +27,30 @@ exports.requestSubscription = async (req, res, next) => {
         address: billingDetails.address,
         metadata,
       });
+   
+    //mongodb
+      // await Member.findOneAndUpdate(
+      //   { address: metadata.walletAddress },
+      //   {
+      //     $set: {
+      //       customerId: customer.id,
+      //     },
+      //   },
+      // );
+      const userData = await databases.listDocuments(
+        '649943eabc8caa275f19',
+        "6499441590fe42913f3e",
+        [sdk.Query.equal("address" , metadata.walletAddress)]
+      )
+     const newResult =  await databases.updateDocument(
+        '649943eabc8caa275f19',
+        "6499441590fe42913f3e",
+        userData.documents[0].$id,
+       {customerId : customer.id}
+      )
 
-      await Member.findOneAndUpdate(
-        { address: metadata.walletAddress },
-        {
-          $set: {
-            customerId: customer.id,
-          },
-        },
-      );
     }
-
+   
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
       items: [
@@ -76,15 +92,26 @@ exports.requestPayment = async (req, res, next) => {
         address: billingDetails.address,
         metadata,
       });
-
-      await Member.findOneAndUpdate(
-        { address: metadata.walletAddress },
-        {
-          $set: {
-            customerId: customer.id,
-          },
-        },
-      );
+      //mongodb
+      // await Member.findOneAndUpdate(
+      //   { address: metadata.walletAddress },
+      //   {
+      //     $set: {
+      //       customerId: customer.id,
+      //     },
+      //   },
+      // );
+    const userData = await databases.listDocuments(
+      '649943eabc8caa275f19',
+      "6499441590fe42913f3e",
+      [sdk.Query.equal("address" , metadata.walletAddress)]
+    )
+    await databases.updateDocument(
+      '649943eabc8caa275f19',
+      "6499441590fe42913f3e",
+      userData.documents[0].$id,
+     {customerId : customer.id}
+    )
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
@@ -103,24 +130,32 @@ exports.requestPayment = async (req, res, next) => {
 };
 
 exports.addPayment = async (req, res, next) => {
+
   try {
     const errors = validationResult(req).array();
     if (errors.length > 0)
       throw new Error(errors.map((err) => err.msg).join(", "));
 
+  
     const { memberId, hash, service, price } = req.body;
-
+ 
     const newPayment = {
       memberId,
       hash,
       service,
       price,
     };
+  //mongodb 
+  // const payment = new Payment(newPayment);
 
-    const payment = new Payment(newPayment);
-
-    const result = await payment.save({ ordered: false });
-
+  // const result = await payment.save({ ordered: false });
+  let newAppPayment = generatePayment(memberId, hash, service, price)
+  const result =  await databases.createDocument(
+    '649943eabc8caa275f19',
+    '64994423100296362bef', 
+    sdk.ID.unique(),
+    newAppPayment
+    )
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -128,28 +163,50 @@ exports.addPayment = async (req, res, next) => {
 };
 
 exports.getPayments = async (req, res, next) => {
+
   try {
     const errors = validationResult(req).array();
     if (errors.length > 0)
       throw new Error(errors.map((err) => err.msg).join(", "));
 
     const { memberId, pageNumber } = req.query;
-
+   
     const page = parseInt(pageNumber);
 
-    const resultCount = await Payment.count({ memberId });
-    const result = await Payment.find({ memberId })
-      .sort({ createdAt: "desc" })
-      .skip(page * 5)
-      .limit(5);
+    // mongodb
+    // const resultCount = await Payment.count({ memberId });
+    // const result = await Payment.find({ memberId })
+    //   .sort({ createdAt: "desc" })
+    //   .skip(page * 5)
+    //   .limit(5);
+    // 
+    let resultCount = await databases.listDocuments(
+      '649943eabc8caa275f19',
+      '64994423100296362bef', 
+      [
+        sdk.Query.equal("memberId", [memberId]),
+      ])
+    resultCount = resultCount.total
 
-    const pageCountPartial = parseFloat(resultCount / 5);
+    const result = await databases.listDocuments(
+      '649943eabc8caa275f19',
+      '64994423100296362bef', 
+      [
+        sdk.Query.equal("memberId", [memberId]),
+        sdk.Query.offset(page * 5),
+        sdk.Query.orderAsc("$createdAt"),
+        sdk.Query.limit(5),
+      ])
+
+    const pageCountPartial = parseFloat(resultCount.total / 5);
     const isWholeNumber = pageCountPartial % 1 === 0.5;
     const finalPageCount = Math.trunc(pageCountPartial) + 1;
-
+    const frontEndData = result.documents.map((document)=> {
+      return generatePaymentFrontEnd(document);
+    })
     const data = {
-      payments: result,
-      totalItems: resultCount,
+      payments: frontEndData,
+      totalItems: resultCount.total,
       totalPages: isWholeNumber ? pageCountPartial : finalPageCount,
       currentPage: page,
     };

@@ -1,19 +1,19 @@
 const production = {
-  clientUrl: "https://www.nfthost.app",
+  clientUrl: process.env.CLIENT_URL,
   serverUrl: "http://localhost:8080",
   stripe: {
     products: {
       generator: {
-        productId: "prod_MUTRTKzbIDNx90",
-        priceId: "price_1LlUUMHjrZpuqKHtI8T2eCPj",
+        productId: "prod_ODAFcxWL02tPb3",
+        priceId: "price_1NQjvEKiHVApsU3DCu2v0gFa",
       },
       website: {
-        productId: "prod_MUTS2m2Jw4BUJe",
-        priceId: "price_1LlUVaHjrZpuqKHtyWSqAG9Z",
+        productId: "prod_ODA6KU32UAuXQt",
+        priceId: "price_1NQjmQKiHVApsU3DG7ZBA6rb",
       },
       utils: {
-        productId: "prod_MUTSj2PA5iVWHP",
-        priceId: "price_1LlUW1HjrZpuqKHtbRc8RIyE",
+        productId: "prod_ODAHX1Y57EdeB4I",
+        priceId: "price_1NQjx4KiHVApsU3DFBaCA9ay",
       },
     },
   },

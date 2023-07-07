@@ -4,16 +4,16 @@ const development = {
   stripe: {
     products: {
       generator: {
-        productId: "prod_MUjIgHsydbMGLu",
-        priceId: "price_1LljpQHjrZpuqKHtmIxLJf2C",
+        productId: "prod_ODAFcxWL02tPb3",
+        priceId: "price_1NQjvEKiHVApsU3DCu2v0gFa",
       },
       website: {
-        productId: "prod_MUjJIzvXHI56gw",
-        priceId: "price_1LljrGHjrZpuqKHtqH9yBZCP",
+        productId: "prod_ODA6KU32UAuXQt",
+        priceId: "price_1NQjmQKiHVApsU3DG7ZBA6rb",
       },
       utils: {
-        productId: "prod_MUjKZNifbdGKgI",
-        priceId: "price_1LljrcHjrZpuqKHt1x9LRWiT",
+        productId: "prod_ODAHX1Y57EdeB4I",
+        priceId: "price_1NQjx4KiHVApsU3DFBaCA9ay",
       },
     },
   },

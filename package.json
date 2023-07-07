@@ -26,6 +26,7 @@
     "jsonwebtoken": "^9.0.0",
     "lzutf8": "^0.6.3",
     "mongoose": "^6.8.2",
+    "node-appwrite": "^9.0.0",
     "stripe": "^11.5.0"
   },
   "devDependencies": {
